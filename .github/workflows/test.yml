@@ -1,42 +1,46 @@
-name: Terraform CI Test
-
-on:
-  push:
-    branches:
-      - ci
-
+on: [push, pull_request]
+name: TestTerraform
 jobs:
-  Release:
+  prepare_list:
     runs-on: ubuntu-latest
-
-    env:
-      DOWNLOAD_TEST_BIN: 1
-      DNS_ADDRESS: 0
-      AWS_DEFAULT_REGION: us-east-2
-      AWS_ALTERNATE_REGION: eu-west-1
-
     steps:
-      - name: Checkout Codebase
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - id: set-matrix
+        run: echo "::set-output name=matrix::$(python tests/get-tf-services.py --names)"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+  test_service:
+    needs: prepare_list
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.prepare_list.outputs.matrix) }}
+        go-version: [1.18.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.go-version }}
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Localstack
+      run: pip install localstack
+    - name: Start MotoServer
+      run: |
+        localstack -d
+    - name: Installing TF Binary
+      run: |
+        bin/install-aws-test
 
-      - name: Checkout Submodule
-        run: git submodule update --init --recursive
-
-      - name: Setup Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.17.8'
-
-      - name: Compiling Binary
-        run: |
-          rm -rf $HOME/.cache/localstack/allservices.test
-          bin/install-aws-test
-
-      - name: Creating Github Release
-        uses: ncipollo/release-action@v1
-        with:
-          prerelease: false
-          tag: localstack
-          token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "/home/runner/.cache/localstack/allservices.test"
-
+    - name: Get list of tests for  this service
+      id: get-list
+      run: echo "::set-output name=testlist::$(python tests/get-tf-tests.py ${{ matrix.service }})"
+    - name: Execute tests
+      run: |
+        echo ${{ get-list.output }}

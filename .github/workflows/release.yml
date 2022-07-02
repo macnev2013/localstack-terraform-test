@@ -3,7 +3,7 @@ name: Terraform Binary Release
 on:
   push:
     branches:
-      - ci
+      - cii
 
 jobs:
   Release:
@@ -36,6 +36,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           prerelease: false
+          tag: localstack
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: "/home/runner/.cache/localstack/allservices.test"
 
