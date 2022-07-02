@@ -31,12 +31,11 @@ jobs:
         run: |
           rm -rf $HOME/.cache/localstack/allservices.test
           bin/install-aws-test
-          echo $HOME
 
       - name: Creating Github Release
         uses: ncipollo/release-action@v1
         with:
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "$HOME/.cache/localstack/allservices.test"
+          artifacts: "/home/runner/.cache/localstack/allservices.test"
 
