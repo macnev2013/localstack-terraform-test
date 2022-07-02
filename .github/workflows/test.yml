@@ -1,0 +1,42 @@
+name: Terraform CI Test
+
+on:
+  push:
+    branches:
+      - ci
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+
+    env:
+      DOWNLOAD_TEST_BIN: 1
+      DNS_ADDRESS: 0
+      AWS_DEFAULT_REGION: us-east-2
+      AWS_ALTERNATE_REGION: eu-west-1
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v3
+
+      - name: Checkout Submodule
+        run: git submodule update --init --recursive
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17.8'
+
+      - name: Compiling Binary
+        run: |
+          rm -rf $HOME/.cache/localstack/allservices.test
+          bin/install-aws-test
+
+      - name: Creating Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          prerelease: false
+          tag: localstack
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "/home/runner/.cache/localstack/allservices.test"
+
