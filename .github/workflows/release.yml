@@ -9,7 +9,7 @@ jobs:
   Release:
     runs-on: ubuntu-latest
     environment:
-      name: test
+      NAME: test
     steps:
       - name: Testing
         run: "echo hello"
