@@ -9,12 +9,7 @@ jobs:
   Release:
     runs-on: ubuntu-latest
 
-    environment:
-      DOWNLOAD_TEST_BIN: test
-      # download_test_bin: 0
-      # dns_address: 0
-      # aws_default_region: us-east-2
-      # aws_alternate_region: eu-west-1
+
 
     steps:
       - name: Checkout Codebase
