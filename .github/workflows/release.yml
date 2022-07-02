@@ -1,0 +1,46 @@
+name: Terraform Binary Release
+
+on:
+  push:
+    branch: ci
+
+jobs:
+  tf_test:
+
+    runs-on: ubuntu-latest
+
+    environment:
+      DOWNLOAD_TEST_BIN: 0
+      # KINESIS_PROVIDER: kinesalite
+      DNS_ADDRESS: 0
+      AWS_DEFAULT_REGION: us-east-2
+      AWS_ALTERNATE_REGION: eu-west-1
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v3
+
+      - name: Checkout Submodule
+        run: git submodule update --init --recursive
+
+      - name: Installing prerequisites
+        run: |
+          go_tgz=/home/circleci/.cache/go1.17.tar.gz
+          test -f $go_tgz || wget -O $go_tgz https://go.dev/dl/go1.17.8.linux-amd64.tar.gz
+          sudo mv /usr/local/go /usr/local/go.bk
+          (cd /tmp; tar -xzf $go_tgz; sudo mv go /usr/local/go)
+          go version
+
+      - name: Compiling Binary
+        run: |
+          rm -rf $HOME/.cache/localstack/allservices.test
+          bin/install-aws-test
+          echo $HOME
+
+      - name: Creating Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "$HOME/.cache/localstack/allservices.test"
+
