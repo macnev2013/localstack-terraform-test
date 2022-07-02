@@ -2,16 +2,14 @@ name: Terraform Binary Release
 
 on:
   push:
-    branch: ci
+    branches:
+      - ci
 
 jobs:
   tf_test:
-
     runs-on: ubuntu-latest
-
     environment:
       DOWNLOAD_TEST_BIN: 0
-      # KINESIS_PROVIDER: kinesalite
       DNS_ADDRESS: 0
       AWS_DEFAULT_REGION: us-east-2
       AWS_ALTERNATE_REGION: eu-west-1
