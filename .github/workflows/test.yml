@@ -50,7 +50,7 @@ jobs:
     - name: Patching Terraform Provider
       run: |
         cd terraform-provider-aws
-        git appply ../etc/patch-002/0001-endpoints.patch
+        git apply ../etc/patch-002/0001-endpoints.patch
     - name: Run Test Cases
       run: |
         cd terraform-provider-aws
