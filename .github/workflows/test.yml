@@ -43,7 +43,7 @@ jobs:
       run: pip install localstack
     - name: Start Localstack
       run: |
-        localstack -d
+        localstack start -d
     - name: Get list of tests for  this service
       id: get-list
       run: echo "::set-output name=testlist::$(python tests/get-tf-tests.py ${{ matrix.service }})"
