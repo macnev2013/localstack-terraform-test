@@ -51,6 +51,15 @@ jobs:
       run: |
         cd terraform-provider-aws
         git apply ../etc/patch-002/0001-endpoints.patch
+    - name: Download Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ matrix.go-version }}-2-${{ hashFiles('**/terraform-provider-aws/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ matrix.go-version }}-2-
     - name: Run Test Cases
       run: |
         cd terraform-provider-aws
